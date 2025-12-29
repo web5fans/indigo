@@ -11,6 +11,7 @@ WORKDIR /dockerbuild
 
 # timezone data for alpine builds
 ENV GOEXPERIMENT=loopvar
+ENV GOPROXY=https://goproxy.cn
 RUN GIT_VERSION=$(git describe --tags --long --always) && \
     echo "replace github.com/gocql/gocql => github.com/scylladb/gocql v1.14.4" >> go.mod && \
     go mod tidy && \

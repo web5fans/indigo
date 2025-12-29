@@ -18,6 +18,7 @@ import (
 
 	"github.com/bluesky-social/indigo/did"
 	"github.com/bluesky-social/indigo/plc"
+	"github.com/bluesky-social/indigo/ckb"
 	"github.com/bluesky-social/indigo/xrpc"
 	slogGorm "github.com/orandin/slog-gorm"
 	"github.com/urfave/cli/v2"
@@ -30,6 +31,9 @@ func GetDidResolver(cctx *cli.Context) did.Resolver {
 	mr := did.NewMultiResolver()
 	mr.AddHandler("plc", &plc.PLCServer{
 		Host: cctx.String("plc"),
+	})
+	mr.AddHandler("ckb", &ckb.CKBServer{
+		Host: cctx.String("ckb"),
 	})
 	mr.AddHandler("web", &did.WebResolver{})
 

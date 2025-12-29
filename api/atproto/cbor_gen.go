@@ -1184,7 +1184,7 @@ func (t *SyncSubscribeRepos_Sync) UnmarshalCBOR(r io.Reader) (err error) {
 			if extra > 2097152 {
 				return fmt.Errorf("t.Blocks: byte array too large (%d)", extra)
 			}
-			if maj != cbg.MajByteString {
+			if maj != cbg.MajByteString && maj != cbg.MajArray {
 				return fmt.Errorf("expected byte array")
 			}
 

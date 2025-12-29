@@ -13,12 +13,14 @@ import (
 	"syscall"
 	"time"
 
+	_ "net/http/pprof"
+
 	_ "github.com/joho/godotenv/autoload"
 	_ "go.uber.org/automaxprocs"
-	_ "net/http/pprof"
 
 	libbgs "github.com/bluesky-social/indigo/bgs"
 	"github.com/bluesky-social/indigo/carstore"
+	"github.com/bluesky-social/indigo/ckb"
 	"github.com/bluesky-social/indigo/did"
 	"github.com/bluesky-social/indigo/events"
 	"github.com/bluesky-social/indigo/events/dbpersist"
@@ -95,6 +97,12 @@ func run(args []string) error {
 			Usage:   "method, hostname, and port of PLC registry",
 			Value:   "https://plc.directory",
 			EnvVars: []string{"ATP_PLC_HOST"},
+		},
+		&cli.StringFlag{
+			Name:    "ckb-host",
+			Usage:   "method, hostname, and port of CKB PLC registry",
+			Value:   "http://127.0.0.1:9533",
+			EnvVars: []string{"ATP_CKB_HOST"},
 		},
 		&cli.BoolFlag{
 			Name:  "crawl-insecure-ws",
@@ -401,6 +409,9 @@ func runBigsky(cctx *cli.Context) error {
 
 		didr := &plc.PLCServer{Host: cctx.String("plc-host")}
 		mr.AddHandler("plc", didr)
+
+		didc := &ckb.CKBServer{Host: cctx.String("ckb-host")}
+		mr.AddHandler("ckb", didc)
 
 		webr := did.WebResolver{}
 		if cctx.Bool("crawl-insecure-ws") {

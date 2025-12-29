@@ -20,11 +20,11 @@ if test -z "$1"; then
 fi
 
 echo "requestCrawl $1"
-http --quiet --ignore-stdin post https://${RELAY_HOST}/admin/pds/requestCrawl Authorization:"Bearer ${RELAY_ADMIN_KEY}" \
+http --quiet --ignore-stdin post ${RELAY_HOST}/admin/pds/requestCrawl Authorization:"Bearer ${RELAY_ADMIN_KEY}" \
 	hostname=$1
 
 echo "changeLimits $1"
-http --quiet --ignore-stdin post https://${RELAY_HOST}/admin/pds/changeLimits Authorization:"Bearer ${RELAY_ADMIN_KEY}" \
+http --quiet --ignore-stdin post ${RELAY_HOST}/admin/pds/changeLimits Authorization:"Bearer ${RELAY_ADMIN_KEY}" \
 	per_second:=100 \
 	per_hour:=1000000 \
 	per_day:=1000000 \
