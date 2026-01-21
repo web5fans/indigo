@@ -53,3 +53,6 @@ netsync-out/
 # Relay dash output
 /public/
 /cmd/relay/public
+
+cmd/bigsky/bigsky
+cmd/bigsky/data/

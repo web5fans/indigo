@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/whyrusleeping/go-did"
 	otel "go.opentelemetry.io/otel"
@@ -28,20 +29,28 @@ func (s *CKBServer) GetDocument(ctx context.Context, didstr string) (*did.Docume
 		return nil, err
 	}
 
-	resp, err := s.C.Do(req.WithContext(ctx))
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("get did request failed (code %d): %s", resp.StatusCode, resp.Status)
-	}
-
 	var doc Document
-	if err := json.NewDecoder(resp.Body).Decode(&doc); err != nil {
-		return nil, err
+	// need retry for tx compacted by ckb, wait 10min as long
+	for i := 1; i <= 60; i++ {
+		resp, err := s.C.Do(req.WithContext(ctx))
+		if err != nil {
+			return nil, err
+		}
+
+		defer resp.Body.Close()
+
+		if resp.StatusCode == 404 {
+			time.Sleep(10 * time.Second)
+			continue
+		}
+
+		if resp.StatusCode != 200 {
+			return nil, fmt.Errorf("get did request failed (code %d): %s", resp.StatusCode, resp.Status)
+		}
+
+		if err := json.NewDecoder(resp.Body).Decode(&doc); err != nil {
+			return nil, err
+		}
 	}
 
 	atp_doc, err := doc.CompatibleATP()

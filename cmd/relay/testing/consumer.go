@@ -94,7 +94,7 @@ func (c *Consumer) Connect(ctx context.Context, cursor int) error {
 	seqScheduler := sequential.NewScheduler("test", c.eventCallbacks().EventHandler)
 	go func() {
 		if err := stream.HandleRepoStream(ctx, conn, seqScheduler, nil); err != nil {
-			slog.Debug("consumer failed processing event", "err", err)
+			slog.Error("consumer failed processing event", "err", err)
 			cancel()
 		}
 	}()
