@@ -62,14 +62,22 @@ func (r *CachingDidResolver) GetDocument(ctx context.Context, didstr string) (*d
 	ctx, span := otel.Tracer("cacheResolver").Start(ctx, "getDocument")
 	defer span.End()
 
-	doc, ok := r.tryCache(didstr)
-	if ok {
-		span.SetAttributes(attribute.Bool("cache", true))
-		cacheHitsTotal.Inc()
-		return doc, nil
+	pdid, err := did.ParseDID(didstr)
+	if err != nil {
+		return nil, err
 	}
-	cacheMissesTotal.Inc()
-	span.SetAttributes(attribute.Bool("cache", false))
+	method := pdid.Protocol()
+
+	if method != "ckb" {
+		doc, ok := r.tryCache(didstr)
+		if ok {
+			span.SetAttributes(attribute.Bool("cache", true))
+			cacheHitsTotal.Inc()
+			return doc, nil
+		}
+		cacheMissesTotal.Inc()
+		span.SetAttributes(attribute.Bool("cache", false))
+	}
 
 	doc, err := r.res.GetDocument(ctx, didstr)
 	if err != nil {
